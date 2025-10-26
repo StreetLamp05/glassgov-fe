@@ -16,17 +16,15 @@ export default function LocationInput({
                                           onChange,
                                           placeholder = 'Enter your city, county, or state...',
                                       }: LocationInputProps) {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+    const autocompleteRef = useRef<HTMLElement | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState('');
-    const [localValue, setLocalValue] = useState(value);
 
     useEffect(() => {
         // Load Google Places API script
         if (!window.google) {
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_CONFIG.API_KEY}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_CONFIG.API_KEY}&libraries=places&loading=async`;
             script.async = true;
             script.defer = true;
             script.onload = () => {
@@ -44,82 +42,82 @@ export default function LocationInput({
     }, []);
 
     useEffect(() => {
-        console.log('Google API loaded?', !!window.google);
-        console.log('API key:', GOOGLE_PLACES_CONFIG.API_KEY);
-    }, [isLoaded]);
+        if (!isLoaded || autocompleteRef.current) return;
 
-    useEffect(() => {
-        if (!isLoaded || !inputRef.current || autocompleteRef.current) return;
-
-        // Initialize Google Places Autocomplete
         try {
-            const autocomplete = new google.maps.places.Autocomplete(
-                inputRef.current,
-                GOOGLE_PLACES_CONFIG.OPTIONS
-            );
+            // Create the new PlaceAutocompleteElement
+            const autocomplete = document.createElement('gmp-place-autocomplete') as any;
+            autocomplete.setAttribute('type', 'regions');
+            autocomplete.setAttribute('placeholder', placeholder);
 
-            // Set fields to return (minimize billing)
-            autocomplete.setFields(['address_components', 'formatted_address']);
+            // Add to DOM
+            const container = document.getElementById('autocomplete-container');
+            if (container) {
+                container.appendChild(autocomplete);
+                autocompleteRef.current = autocomplete;
 
-            // Listen for place selection
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
+                // Listen for place selection
+                autocomplete.addEventListener('gmp-placeselect', async (event: any) => {
+                    console.log('🎯 Place selected event fired!');
+                    const place = event.detail.place;
 
-                console.log('Place selected:', place);
-                console.log('Address components:', place.address_components);
+                    if (!place) {
+                        setError('Please select a location from the dropdown');
+                        return;
+                    }
 
-                if (!place.address_components) {
-                    setError('Please select a location from the dropdown');
-                    return;
-                }
+                    // Fetch place details
+                    await place.fetchFields({
+                        fields: ['addressComponents', 'formattedAddress']
+                    });
 
-                // Parse the place into our Geo format
-                const parsed = parsePlaceToGeo(place);
-                console.log('Parsed geo:', parsed);
+                    console.log('Place details:', place);
 
-                // Create display string
-                const displayParts = [
-                    parsed.city,
-                    parsed.county,
-                    parsed.state_name,
-                ].filter(Boolean);
+                    // Parse address components
+                    const addressComponents = place.addressComponents || [];
+                    const getComponent = (type: string): string | undefined => {
+                        const component = addressComponents.find((c: any) =>
+                            c.types.includes(type)
+                        );
+                        return component?.longText;
+                    };
 
-                const displayString = displayParts.join(', ');
-                console.log('Display string:', displayString);
+                    let city = getComponent('locality') || getComponent('postal_town');
+                    let county = getComponent('administrative_area_level_2');
+                    const state = getComponent('administrative_area_level_1');
 
-                const geoObject = {
-                    city: parsed.city,
-                    county: parsed.county,
-                    state_name: parsed.state_name,
-                };
-                console.log('Geo object:', geoObject);
+                    // Append "County" if missing
+                    if (county && !/county$/i.test(county)) {
+                        county += ' County';
+                    }
 
-                // Update local value
-                setLocalValue(displayString);
+                    // Convert state code to full name if needed (simple version)
+                    const state_name = state;
 
-                // Update parent with location and geo data
-                onChange(displayString, geoObject);
+                    const geoObject = {
+                        city,
+                        county,
+                        state_name,
+                    };
 
-                setError('');
-            });
+                    console.log('Parsed geo:', geoObject);
 
-            autocompleteRef.current = autocomplete;
+                    // Create display string
+                    const displayParts = [city, county, state_name].filter(Boolean);
+                    const displayString = displayParts.join(', ');
+
+                    console.log('Display string:', displayString);
+
+                    // Update parent
+                    onChange(displayString, geoObject);
+                    setError('');
+                });
+            }
         } catch (err) {
             setError('Failed to initialize location search');
             console.error('Google Places Autocomplete error:', err);
         }
-
-        return () => {
-            if (autocompleteRef.current) {
-                google.maps.event.clearInstanceListeners(autocompleteRef.current);
-            }
-        };
-    }, [isLoaded, onChange]);
-
-    // Sync with external value changes
-    useEffect(() => {
-        setLocalValue(value);
-    }, [value]);
+    }, [isLoaded, onChange, placeholder]);
 
     return (
         <div style={{ marginBottom: '1.5rem' }}>
@@ -134,37 +132,11 @@ export default function LocationInput({
                 Location <span style={{ color: '#667eea' }}>*</span>
             </label>
 
-            <input
-                ref={inputRef}
-                type="text"
-                placeholder={placeholder}
-                value={localValue}
-                onChange={(e) => {
-                    // Only update local display value when typing
-                    // Don't clear the geo until a new place is selected
-                    setLocalValue(e.target.value);
-                }}
-                disabled={!isLoaded}
+            {/* Container for the autocomplete element */}
+            <div
+                id="autocomplete-container"
                 style={{
                     width: '100%',
-                    padding: '0.75rem',
-                    fontSize: '1rem',
-                    border: error ? '2px solid #f87171' : '2px solid rgba(255, 255, 255, 0.3)',
-                    borderRadius: '8px',
-                    outline: 'none',
-                    transition: 'all 0.2s',
-                    background: 'rgba(255, 255, 255, 0.5)',
-                    backdropFilter: 'blur(5px)',
-                }}
-                onFocus={(e) => {
-                    if (!error) {
-                        e.target.style.borderColor = '#667eea';
-                    }
-                }}
-                onBlur={(e) => {
-                    if (!error) {
-                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    }
                 }}
             />
 
@@ -197,6 +169,23 @@ export default function LocationInput({
                     Loading location search...
                 </p>
             )}
+
+            <style jsx>{`
+                gmp-place-autocomplete {
+                    width: 100%;
+                    padding: 0.75rem;
+                    font-size: 1rem;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 8px;
+                    outline: none;
+                    transition: all 0.2s;
+                    background: rgba(255, 255, 255, 0.5);
+                    backdrop-filter: blur(5px);
+                }
+                gmp-place-autocomplete:focus {
+                    border-color: #667eea;
+                }
+            `}</style>
         </div>
     );
 }
