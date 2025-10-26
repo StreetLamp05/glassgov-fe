@@ -66,7 +66,7 @@ export default function LocationInput({
             console.log('Autocomplete initialized');
 
             // Listen for place selection
-            autocomplete.addListener('place_changed', () => {
+            const handlePlaceChanged = () => {
                 console.log('🎯 PLACE_CHANGED EVENT FIRED!');
                 const place = autocomplete.getPlace();
 
@@ -109,7 +109,9 @@ export default function LocationInput({
                 console.log('🚀 Calling onChange');
                 onChange(displayString, geoObject);
                 setError('');
-            });
+            };
+
+            autocomplete.addListener('place_changed', handlePlaceChanged);
 
             autocompleteRef.current = autocomplete;
             console.log('Event listener attached');
@@ -123,7 +125,7 @@ export default function LocationInput({
                 google.maps.event.clearInstanceListeners(autocompleteRef.current);
             }
         };
-    }, [isLoaded, onChange]);
+    }, [isLoaded]); // REMOVED onChange from dependencies!
 
     return (
         <div style={{ marginBottom: '1.5rem' }}>
