@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Introduction
+GlassGov, is a platform that empowers citizens to understand, discuss, and influence the policies that shape their lives. In a world where government often feels distant, GlassGov brings clarity and connection, transforming local concerns into meaningful civic insight.
 
-## Getting Started
+By combining open legislative data with AI-powered summaries and community feedback, GlassGov helps people see how their everyday issues relate to real bills and actions in their state. It gives citizens a clear, accessible view of what’s happening in government, and how their voices can drive change.
 
-First, run the development server:
+GlassGov reimagines civic engagement for the modern age, making participation easier, transparency stronger, and democracy more collaborative.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+🌐 **https://www.glassgov.tech/**
+
+<img width="1050" height="512" alt="image" src="https://github.com/user-attachments/assets/17b6f0f8-1231-4fb0-9c60-7e2c73ad506f" />
+
+# Team
+
+**David Kan**: University of Georgia (3rd year) B.S Computer Science 
+
+**Jasmine Nguyen**: University of Georgia (3rd year) B.S Data Science 
+
+to run: 
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+npm run dev
+```
