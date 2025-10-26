@@ -2,52 +2,38 @@
 
 import { useState, useEffect } from 'react';
 import IntroScreen from '@/components/IntroScreen';
+import DiscoverSection from '@/components/discover/DiscoverSection';
+import { STORAGE_KEYS } from '@/lib/constants';
+import Image from "next/image";
 
 export default function Home() {
     const [showIntro, setShowIntro] = useState(false);
 
     useEffect(() => {
         // Only show intro after client-side mount to prevent hydration issues
-        setShowIntro(true);
+        const hasSeenIntro = localStorage.getItem(STORAGE_KEYS.INTRO_SEEN);
+        if (!hasSeenIntro) {
+            setShowIntro(true);
+        }
     }, []);
+
+    const handleDismissIntro = () => {
+        setShowIntro(false);
+        localStorage.setItem(STORAGE_KEYS.INTRO_SEEN, 'true');
+    };
 
     return (
         <>
-            {showIntro && <IntroScreen onDismiss={() => setShowIntro(false)} />}
+            {showIntro && <IntroScreen onDismiss={handleDismissIntro} />}
 
-            <main style={{
-                width: '100%',
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: '#f5f7fa',
-                padding: '2rem'
-            }}>
-                <div style={{
-                    textAlign: 'center',
-                    maxWidth: '1200px',
-                    padding: '3rem'
-                }}>
-                    <h1 style={{
-                        fontSize: '3rem',
-                        color: '#667eea',
-                        marginBottom: '1rem',
-                        fontWeight: '700'
-                    }}>
-                        Welcome to GlassGov
-                    </h1>
-                    <p style={{
-                        fontSize: '1.2rem',
-                        color: '#666',
-                        lineHeight: '1.8'
-                    }}>
-                        Transparency in government. Action for your community.
-                    </p>
-
-                    {/* Add your actual content here */}
-                </div>
+            <main
+                style={{
+                    width: '100%',
+                    minHeight: '100vh',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                }}
+            >
+                <DiscoverSection />
             </main>
         </>
     );
