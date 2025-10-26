@@ -2,6 +2,7 @@
 
 import { AISummary } from '@/lib/types';
 import SummaryCard from './SummaryCard';
+import ActionPlanComponent from './ActionPlan';
 import GlassCard from '@/components/ui/GlassCard';
 
 interface AISummaryProps {
@@ -10,7 +11,9 @@ interface AISummaryProps {
 }
 
 export default function AISummaryComponent({ summary, loading }: AISummaryProps) {
-    if (loading) {
+    console.log('AISummary render:', { loading, hasSummary: !!summary, hasActionPlan: !!summary?.actionPlan });
+
+    if (loading || !summary) {
         return (
             <div style={{ marginBottom: '2rem' }}>
                 <div
@@ -43,11 +46,11 @@ export default function AISummaryComponent({ summary, loading }: AISummaryProps)
                     </p>
                 </div>
                 <style jsx>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}</style>
             </div>
         );
     }
@@ -206,7 +209,7 @@ export default function AISummaryComponent({ summary, loading }: AISummaryProps)
 
             {/* Insights (if available) */}
             {summary.insights && (
-                <GlassCard variant="dark" padding="md">
+                <GlassCard variant="dark" padding="md" style={{ marginBottom: '1.5rem' }}>
                     <div
                         style={{
                             display: 'flex',
@@ -253,6 +256,11 @@ export default function AISummaryComponent({ summary, loading }: AISummaryProps)
                         </div>
                     </div>
                 </GlassCard>
+            )}
+
+            {/* Action Plan (if available - only for message-based queries) */}
+            {summary.actionPlan && (
+                <ActionPlanComponent actionPlan={summary.actionPlan} />
             )}
 
             {/* Timestamp */}

@@ -11,15 +11,16 @@ export default function Home() {
 
     useEffect(() => {
         // Only show intro after client-side mount to prevent hydration issues
-        const hasSeenIntro = localStorage.getItem(STORAGE_KEYS.INTRO_SEEN);
-        if (!hasSeenIntro) {
-            setShowIntro(true);
-        }
+        //const hasSeenIntro = localStorage.getItem(STORAGE_KEYS.INTRO_SEEN);
+        //if (!hasSeenIntro) {
+        //    setShowIntro(true);
+       // }
+        setShowIntro(true);
     }, []);
 
     const handleDismissIntro = () => {
         setShowIntro(false);
-        localStorage.setItem(STORAGE_KEYS.INTRO_SEEN, 'true');
+        // localStorage.setItem(STORAGE_KEYS.INTRO_SEEN, 'true');
     };
 
     return (

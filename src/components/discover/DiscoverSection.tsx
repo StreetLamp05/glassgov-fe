@@ -87,6 +87,13 @@ export default function DiscoverSection() {
             const hasCategories = params.categories && params.categories.length > 0;
             const isLocationOnly = !hasMessage && !hasCategories;
 
+            console.log('=== DISCOVER MODE ===');
+            console.log('Message:', params.message);
+            console.log('hasMessage:', hasMessage);
+            console.log('hasCategories:', hasCategories);
+            console.log('isLocationOnly:', isLocationOnly);
+            console.log('====================');
+
             // Generate AI summary for location-only OR category-filtered queries
             // Also generate action plan if user provided a message
             if (data.sections.length > 0 && (isLocationOnly || hasCategories || hasMessage)) {

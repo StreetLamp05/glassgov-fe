@@ -38,6 +38,51 @@ export function buildSummaryPrompt(
         ? topCategories.map(tc => `${tc.label} (${tc.count} items)`).join(', ')
         : 'Not available';
 
+    // Hardcoded LA officials for MVP
+    const officialsText = `
+**Los Angeles Officials:**
+- Karen Bass, Mayor of Los Angeles
+  Phone: (213) 978-0600
+  Email: mayor.helpline@lacity.org
+  
+- Hydee Feldstein Soto, Los Angeles City Attorney
+  Phone: (213) 978-8100
+  Email: ethics.commission@lacity.org
+
+- Paul Krekorian, City Council President (District 2)
+  Phone: (818) 755-7676
+  Email: councilmember.krekorian@lacity.org
+
+- Bob Blumenfield, City Councilmember (District 3)
+  Phone: (818) 774-4330
+  Email: councilmember.blumenfield@lacity.org
+
+- Nithya Raman, City Councilmember (District 4)
+  Phone: (323) 957-6415
+  Email: councilmember.raman@lacity.org
+
+- Lindsey Horvath, LA County Supervisor (District 3)
+  Phone: (213) 974-3333
+  Email: ThirdDistrict@bos.lacounty.gov
+
+- Hilda Solis, LA County Supervisor (District 1)
+  Phone: (213) 974-4111
+  Email: HildaSolis@bos.lacounty.gov
+
+**State Officials:**
+- Alex Padilla, U.S. Senator for California
+  Phone: (310) 231-4494
+  Email: https://www.padilla.senate.gov/contact/
+
+- Laphonza Butler, U.S. Senator for California
+  Phone: (202) 224-3553
+  Email: https://www.butler.senate.gov/contact/
+
+- Gavin Newsom, Governor of California
+  Phone: (916) 445-2841
+  Email: https://www.gov.ca.gov/contact/
+`;
+
     // Build the base prompt
     let prompt = `You are an intermediary between local government and citizens, helping people understand what's happening in their community and take effective action.
 
@@ -86,7 +131,11 @@ Create summaries and guidance:
 
 4. **Action Plan**: Based on the user's concern and the data, create an actionable plan:
    - **Overview**: Why taking action on this issue matters (1-2 sentences)
-   - **Contacts**: Identify 1-3 relevant officials (use realistic titles like "State Senator", "City Council Member", "Mayor" - you can use placeholder names like "[Your Senator]" if specific names aren't in the data)
+   - **Contacts**: Select 1-3 RELEVANT officials from the list above based on the issue type:
+     * Local issues (potholes, local crime, parks) → City Council Member or Mayor
+     * County issues (health, larger infrastructure) → County Supervisor  
+     * State/federal issues (state laws, major policy) → State Senator or Governor
+     Use the EXACT names, titles, phone numbers, and emails from the officials list above.
    - **Call Script**: A short, effective phone script template (3-4 sentences)
    - **Email Template**: A professional email template they can customize (subject line + 2-3 paragraph body)
    - **Tips**: 3-4 best practices for effective communication with officials

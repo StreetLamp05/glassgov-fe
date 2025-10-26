@@ -22,6 +22,12 @@ export async function POST(request: NextRequest) {
         // Parse request body
         const body: SummarizeRequest = await request.json();
 
+        console.log('=== SUMMARIZE REQUEST ===');
+        console.log('Geo:', body.geo);
+        console.log('User message:', body.user_message);
+        console.log('Has message:', !!body.user_message);
+        console.log('========================');
+
         // Validate request
         if (!body.geo || !body.sections) {
             return NextResponse.json(
