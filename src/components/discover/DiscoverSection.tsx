@@ -1,18 +1,25 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { DiscoverResponse, CategoryKey, Geo } from '@/lib/types';
+import { DiscoverResponse, CategoryKey, Geo, AISummary } from '@/lib/types';
 import { fetchDiscover } from '@/lib/api';
+import { generateSummary } from '@/lib/claude';
 import { STORAGE_KEYS, API_CONFIG } from '@/lib/constants';
 import SearchForm from './SearchForm';
 import LoadingState from './LoadingState';
 import ResultsSection from './ResultsSection';
+import AISummaryComponent from './AISummary';
 import Image from "next/image";
 
 export default function DiscoverSection() {
     const [response, setResponse] = useState<DiscoverResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // AI Summary state
+    const [aiSummary, setAiSummary] = useState<AISummary | null>(null);
+    const [summaryLoading, setSummaryLoading] = useState(false);
+    const [summaryError, setSummaryError] = useState('');
 
     // Form state for restoration
     const [savedLocation, setSavedLocation] = useState('');
@@ -58,6 +65,8 @@ export default function DiscoverSection() {
         abortControllerRef.current = new AbortController();
         setLoading(true);
         setError('');
+        setAiSummary(null); // Clear previous summary
+        setSummaryError('');
 
         const request = {
             geo: params.geo,
@@ -72,6 +81,34 @@ export default function DiscoverSection() {
 
             // Save to localStorage
             localStorage.setItem(STORAGE_KEYS.LAST_QUERY, JSON.stringify(request));
+
+            // Determine which mode we're in
+            const hasMessage = !!params.message && params.message.trim().length > 0;
+            const hasCategories = params.categories && params.categories.length > 0;
+            const isLocationOnly = !hasMessage && !hasCategories;
+
+            // Generate AI summary for location-only OR category-filtered queries
+            // Also generate action plan if user provided a message
+            if (data.sections.length > 0 && (isLocationOnly || hasCategories || hasMessage)) {
+                console.log('Generating AI summary...', { hasMessage, hasCategories, isLocationOnly });
+                setSummaryLoading(true);
+
+                try {
+                    const summary = await generateSummary(
+                        params.geo,
+                        data.sections,
+                        data.top_categories,
+                        hasMessage ? params.message : undefined // Pass message only if present
+                    );
+                    setAiSummary(summary);
+                    console.log('AI summary generated successfully', { hasActionPlan: !!summary.actionPlan });
+                } catch (summaryErr: any) {
+                    console.error('Failed to generate AI summary:', summaryErr);
+                    setSummaryError('Failed to generate AI summary. Showing results without summary.');
+                } finally {
+                    setSummaryLoading(false);
+                }
+            }
         } catch (err: any) {
             if (err.name !== 'AbortError') {
                 setError(err.message || 'Something went wrong. Please try again.');
@@ -105,7 +142,9 @@ export default function DiscoverSection() {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    gap: '1rem', // space between logo and text
+                    gap: '1rem',
+                    marginBottom: '3rem',
+                    paddingTop: '2rem',
                 }}
             >
                 <Image
@@ -113,7 +152,7 @@ export default function DiscoverSection() {
                     alt="GlassGov Logo"
                     width={60}
                     height={60}
-                    style={{ borderRadius: '8px' }} // optional
+                    style={{ borderRadius: '8px' }}
                 />
                 <h1
                     style={{
@@ -143,6 +182,36 @@ export default function DiscoverSection() {
 
             {/* Loading State */}
             {loading && <LoadingState />}
+
+            {/* AI Summary */}
+            {!loading && response && (aiSummary || summaryLoading) && (
+                <AISummaryComponent
+                    summary={aiSummary!}
+                    loading={summaryLoading}
+                />
+            )}
+
+            {/* Summary Error (non-blocking) */}
+            {summaryError && (
+                <div
+                    style={{
+                        marginBottom: '2rem',
+                        padding: '1rem',
+                        background: 'rgba(251, 191, 36, 0.15)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(251, 191, 36, 0.3)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        fontSize: '0.9rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                    }}
+                >
+                    <span>⚠️</span>
+                    <span>{summaryError}</span>
+                </div>
+            )}
 
             {/* Results */}
             {response && !loading && (

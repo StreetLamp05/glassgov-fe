@@ -81,6 +81,46 @@ export default function ResultsSection({
                 </div>
             )}
 
+            {/* Divider between AI summary and raw data */}
+            <div
+                style={{
+                    marginBottom: '2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                }}
+            >
+                <div
+                    style={{
+                        flex: 1,
+                        height: '2px',
+                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+                    }}
+                />
+                <span
+                    style={{
+                        color: 'white',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        padding: '0.5rem 1rem',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(10px)',
+                        borderRadius: '20px',
+                    }}
+                >
+          📋 Detailed Data
+        </span>
+                <div
+                    style={{
+                        flex: 1,
+                        height: '2px',
+                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
+                    }}
+                />
+            </div>
+
             {/* Results */}
             {!hasResults ? (
                 <div

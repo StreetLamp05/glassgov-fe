@@ -57,3 +57,12 @@ export const UI_CONFIG = {
     ANIMATION_DURATION: 300, // ms
     MAX_SUMMARY_LENGTH: 150, // characters
 };
+
+// Claude API Configuration
+export const CLAUDE_CONFIG = {
+    MODEL: 'claude-sonnet-4-20250514', // Claude Sonnet
+    MAX_TOKENS: 2048,
+    TEMPERATURE: 0.7,
+    SUMMARIZE_ENDPOINT: '/api/summarize',
+    REQUEST_TIMEOUT: 45000, // 45 seconds (Claude can take a bit)
+};

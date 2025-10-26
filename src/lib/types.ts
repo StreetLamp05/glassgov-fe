@@ -95,3 +95,56 @@ export interface ParsedPlace {
     state_name?: string;
     formatted_address?: string;
 }
+
+// AI Summary types
+export interface SummarySection {
+    title: string;
+    content: string;
+    keyPoints?: string[];
+}
+
+export interface ContactInfo {
+    name: string;
+    title: string;
+    phone?: string;
+    email?: string;
+    officeHours?: string;
+    website?: string;
+}
+
+export interface ActionPlan {
+    overview: string; // 1-2 sentences on why this action matters
+    contacts: ContactInfo[]; // List of officials to contact
+    callScript: string; // Template for phone calls
+    emailTemplate: string; // Template for emails
+    tips: string[]; // Best practices for effective communication
+    nextSteps: string[]; // Additional actions they can take
+}
+
+export interface AISummary {
+    government: {
+        overview: string;
+        keyInitiatives: string[];
+        priorityAreas: string[];
+    };
+    citizens: {
+        overview: string;
+        topConcerns: string[];
+        sentiment: 'positive' | 'neutral' | 'concerned' | 'critical';
+    };
+    insights?: string;
+    actionPlan?: ActionPlan; // Only present for message-based queries
+    generatedAt: string; // ISO timestamp
+}
+
+export interface SummarizeRequest {
+    geo: Geo;
+    sections: Section[];
+    top_categories?: TopCategory[];
+    user_message?: string;
+}
+
+export interface SummarizeResponse {
+    summary: AISummary;
+    error?: string;
+}
